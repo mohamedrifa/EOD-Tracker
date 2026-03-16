@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatelessWidget {
 
@@ -6,6 +9,33 @@ class LoginPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   LoginPage({super.key});
+
+  Future<void> login(BuildContext context) async {
+    final url = Uri.parse("https://eod-backend-ykjw.onrender.com/api/User");
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: jsonEncode({
+        "email": emailController.text,
+        "password": passwordController.text,
+        "twoFactorCode": "",
+        "twoFactorRecoveryCode": ""
+      }),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      String userId = data["id"].toString();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString("token", userId);
+      Navigator.pushReplacementNamed(context, "/");
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Login Failed")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +110,8 @@ class LoginPage extends StatelessWidget {
                           ),
 
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, "/calendar");
+                            login(context);
                           },
-
                           child: const Text(
                             "Login",
                             style: TextStyle(

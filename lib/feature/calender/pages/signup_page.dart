@@ -1,12 +1,41 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SignupPage extends StatelessWidget {
-
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   SignupPage({super.key});
+
+  Future<void> signup(BuildContext context) async {
+    final url = Uri.parse("https://eod-backend-ykjw.onrender.com/api/User");
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "id": "",
+        "name": nameController.text,
+        "email": emailController.text,
+        "password": passwordController.text,
+      }),
+    );
+    print("Status Code: ${response.statusCode}");
+    print("Response Body: ${response.body}");
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Signup Successful")),
+      );
+      Navigator.pushReplacementNamed(context, "/login");
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Signup Failed: ${response.statusCode}")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +120,7 @@ class SignupPage extends StatelessWidget {
                           ),
 
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, "/calendar");
+                            signup(context);
                           },
 
                           child: const Text(
@@ -120,7 +149,6 @@ class SignupPage extends StatelessWidget {
                           ),
                         ),
                       )
-
                     ],
                   ),
                 ),
