@@ -3,15 +3,27 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
   LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController emailController = TextEditingController();
+
+  final TextEditingController passwordController = TextEditingController();
+
+  bool loading = false;
+
   Future<void> login(BuildContext context) async {
-    final url = Uri.parse("https://eod-backend-ykjw.onrender.com/api/User");
+    setState(() {
+      loading = true;
+    });
+    final url = Uri.parse("https://eod-backend-ykjw.onrender.com/api/User/login");
     final response = await http.post(
       url,
       headers: {
@@ -24,6 +36,9 @@ class LoginPage extends StatelessWidget {
         "twoFactorRecoveryCode": ""
       }),
     );
+    setState(() {
+      loading = false;
+    });
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       String userId = data["id"].toString();
@@ -100,7 +115,6 @@ class LoginPage extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: 50,
-
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xffF47C20),
@@ -108,13 +122,12 @@ class LoginPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-
-                          onPressed: () {
+                          onPressed: loading ? null : () {
                             login(context);
                           },
-                          child: const Text(
-                            "Login",
-                            style: TextStyle(
+                          child: Text(
+                            loading ? "Logging In..." : "Login",
+                            style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 16,
                               color: Colors.white,

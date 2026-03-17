@@ -1,53 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class SignupPage extends StatefulWidget {
-
-  SignupPage({super.key});
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SettingsPageState extends State<SettingsPage> {
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   bool loading = false;
 
-  Future<void> signup(BuildContext context) async {
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
     setState(() {
       loading = true;
     });
-    final url = Uri.parse("https://eod-backend-ykjw.onrender.com/api/User");
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({
-        "id": "",
-        "name": nameController.text,
-        "email": emailController.text,
-        "password": passwordController.text,
-      }),
-    );
-    print("Status Code: ${response.statusCode}");
-    print("Response Body: ${response.body}");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? id = prefs.getString("token");
+    if (id == null) return;
+    final url = Uri.parse(
+        "https://eod-backend-ykjw.onrender.com/api/User/$id");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        nameController.text = data["name"] ?? "";
+        emailController.text = data["email"] ?? "";
+        passwordController.text = data["password"] ?? "";
+        confirmPasswordController.text = data["password"] ?? "";
+      });
+      print(nameController.text);
+    } else {
+      print("Failed to load user");
+    }
     setState(() {
       loading = false;
     });
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Signup Successful")),
-      );
-      Navigator.pushReplacementNamed(context, "/login");
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Signup Failed: ${response.statusCode}")),
-      );
-    }
+  }
+
+  Future<void> logout() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove("token");
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      "/login",
+      (route) => false,
+    );
   }
 
   @override
@@ -55,6 +70,17 @@ class _SignupPageState extends State<SignupPage> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 237, 215),
+
+      appBar: AppBar(
+        backgroundColor: const Color(0xffF47C20),
+        title: const Text(
+          "Settings",
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            color: Colors.white,
+          ),
+        ),
+      ),
 
       body: SafeArea(
         child: Center(
@@ -78,16 +104,16 @@ class _SignupPageState extends State<SignupPage> {
                     children: [
 
                       const Text(
-                        "Create Account",
+                        "Profile Settings",
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
                           color: Color(0xffF47C20),
                         ),
                       ),
 
-                      const SizedBox(height: 35),
+                      const SizedBox(height: 30),
 
                       TextField(
                         controller: nameController,
@@ -101,6 +127,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       TextField(
                         controller: emailController,
+                        enabled: false,
                         decoration: const InputDecoration(
                           labelText: "Email",
                           border: OutlineInputBorder(),
@@ -113,7 +140,18 @@ class _SignupPageState extends State<SignupPage> {
                         controller: passwordController,
                         obscureText: true,
                         decoration: const InputDecoration(
-                          labelText: "Password",
+                          labelText: "New Password",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      TextField(
+                        controller: confirmPasswordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: "Confirm Password",
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -132,10 +170,14 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                           ),
                           onPressed: loading ? null : () {
-                            signup(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Profile Updated"),
+                              ),
+                            );
                           },
                           child: Text(
-                            loading ? "Registering..." : "Sign Up",
+                            loading ? "Loading..." : "Save Changes",
                             style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 16,
@@ -145,18 +187,31 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                       ),
 
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 20),
 
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
 
-                        child: const Text(
-                          "Already have an account? Login",
-                          style: TextStyle(
-                            color: Color(0xffF47C20),
-                            fontFamily: 'Poppins',
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                              color: Color(0xffF47C20),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+
+                          onPressed: logout,
+
+                          child: const Text(
+                            "Logout",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 16,
+                              color: Color(0xffF47C20),
+                            ),
                           ),
                         ),
                       )

@@ -32,47 +32,23 @@ class EodAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
         actions: [
-          /// Notification icon with dot
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none, color: Colors.black54),
-                onPressed: () {},
-              ),
-
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              )
-            ],
-          ),
-
           /// Settings
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.black54),
-            onPressed: () {},
-          ),
-
-          /// Profile avatar
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: const Color(0xffF47C20),
-              child: const Icon(
-                Icons.person_outline,
-                color: Colors.white,
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, "/settings");
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: const Color(0xffF47C20),
+                child: const Icon(
+                  Icons.person_outline,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
+          )
         ],
       )
     );

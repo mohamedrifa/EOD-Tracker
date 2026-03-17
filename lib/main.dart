@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './feature/calender/pages/calendar_page.dart';
 import './feature/calender/pages/login_page.dart';
 import './feature/calender/pages/signup_page.dart';
+import './feature/calender/pages/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -32,6 +33,7 @@ class EodApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
         '/': (context) => CalendarPage(),
+        '/settings': (context) => const SettingsPage(),
       },
     );
   }
