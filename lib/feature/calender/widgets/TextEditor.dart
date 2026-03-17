@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 class Texteditor extends StatelessWidget {
   final String hint;
   final int maxlines;
+  final TextEditingController? controller;
 
   const Texteditor({
     super.key,
     required this.hint,
     this.maxlines = 0,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      maxLines: maxlines == 0 ? null : maxlines,
+      maxLines: maxlines == 0 ? 1 : maxlines,
+      controller: controller,
       cursorColor: const Color(0xffFF8C00),
       decoration: InputDecoration(
         hintText: hint,
