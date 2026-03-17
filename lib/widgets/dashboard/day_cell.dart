@@ -1,18 +1,14 @@
-import 'dart:convert';
-
+import 'package:eod/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/add_eod.dart';
-import './task_card.dart';
-import '../../../models/eod_model.dart';
+import '../../utils/storage_util.dart';
+import '../../pages/add_eod.dart';
+import 'task_card.dart';
+import '../../models/eod_model.dart';
 
 class DayCell extends StatefulWidget {
   final DateTime date;
   final DateTime currentMonth;
-
   const DayCell({super.key, required this.date, required this.currentMonth});
-
   @override
   State<DayCell> createState() => _DayCellState();
 }
@@ -20,7 +16,6 @@ class DayCell extends StatefulWidget {
 class _DayCellState extends State<DayCell> {
   bool isHovering = false;
   List<Eod> tasks = [];
-
   @override
   void initState() {
     super.initState();
@@ -28,32 +23,18 @@ class _DayCellState extends State<DayCell> {
   }
 
   Future<void> loadTasks() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String formattedDate =
-        "${widget.date.year}-${widget.date.month.toString().padLeft(2, '0')}-${widget.date.day.toString().padLeft(2, '0')}";
-    String? id = prefs.getString("token");
-    if (id == null) return;
-    final url = Uri.parse(
-      "https://eod-backend-ykjw.onrender.com/api/Eod/user/$id/date/${formattedDate}",
-    );
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      List<Eod> loadedTasks = (data as List).map((item) {
-        return Eod(
-          id: item['id'],
-          topic: item['topic'],
-          expectedTime: item['expectedTime'],
-          actualTime: item['actualTime'],
-          description: item['description'],
-          status: item['status'],
-        );
-      }).toList();
+    try {
+      String? id = await StorageUtil.getToken();
+      if (id == null) return;
+      final loadedTasks = await ApiService.getTasksByDate(
+        userId: id,
+        date: widget.date,
+      );
       setState(() {
         tasks = loadedTasks;
       });
-    } else {
-      print("Failed to load user");
+    } catch (e) {
+      print("Error loading tasks: $e");
     }
   }
 

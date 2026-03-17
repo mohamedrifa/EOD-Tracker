@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import '../widgets/calendar_header.dart';
-import '../widgets/calendar_grid.dart';
-import '../../../widgets/eod_appbar.dart';
+import '../widgets/dashboard/calendar_header.dart';
+import '../widgets/dashboard/calendar_grid.dart';
+import '../widgets/dashboard/eod_appbar.dart';
 
-class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+class Dashboard extends StatefulWidget {
+  const Dashboard({super.key});
 
   @override
-  State<CalendarPage> createState() => _CalendarPageState();
+  State<Dashboard> createState() => _DashboardPageState();
 }
 
-class _CalendarPageState extends State<CalendarPage> {
+class _DashboardPageState extends State<Dashboard> {
 
   DateTime currentMonth = DateTime.now();
 

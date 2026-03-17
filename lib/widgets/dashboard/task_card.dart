@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './../../../models/eod_model.dart';
+import '../../models/eod_model.dart';
 
 class TaskCard extends StatelessWidget {
   final Eod task;

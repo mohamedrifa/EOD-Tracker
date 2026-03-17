@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../services/api_service.dart';
+import '../utils/storage_util.dart';
+import '../utils/ui_util.dart';
+import '../widgets/settings/text_editor.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -16,6 +17,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+  bool hidePassword = true, hideConfirmPassword = true;
   bool loading = false;
 
   @override
@@ -25,39 +27,46 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> loadUser() async {
-    setState(() {
-      loading = true;
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? id = prefs.getString("token");
-    if (id == null) return;
-    final url = Uri.parse(
-        "https://eod-backend-ykjw.onrender.com/api/User/$id");
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        nameController.text = data["name"] ?? "";
-        emailController.text = data["email"] ?? "";
-        passwordController.text = data["password"] ?? "";
-        confirmPasswordController.text = data["password"] ?? "";
-      });
-      print(nameController.text);
-    } else {
-      print("Failed to load user");
+    setState(() => loading = true);
+    final id = await StorageUtil.getToken();
+    if (id == null) {
+      setState(() => loading = false);
+      return;
     }
-    setState(() {
-      loading = false;
-    });
+    final data = await ApiService.getUser(id);
+    if (data != null) {
+      nameController.text = data["name"] ?? "";
+      emailController.text = data["email"] ?? "";
+    }
+    setState(() => loading = false);
+  }
+
+  Future<void> updateUser() async {
+    // if (passwordController.text != confirmPasswordController.text) {
+    //   UiUtil.showSnack(context, "Passwords do not match");
+    //   return;
+    // }
+    // setState(() => loading = true);
+    // final id = await StorageUtil.getToken();
+    // final success = await ApiService.updateUser(
+    //   id: id!,
+    //   name: nameController.text,
+    //   email: emailController.text,
+    //   password: passwordController.text.isEmpty
+    //       ? null
+    //       : passwordController.text,
+    // );
+    // setState(() => loading = false);
+    // if (success) {
+    //   UiUtil.showSnack(context, "Profile Updated");
+    // } else {
+    //   UiUtil.showSnack(context, "Update Failed");
+    // }
   }
 
   Future<void> logout() async {
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove("token");
-
+    await StorageUtil.clear();
     if (!mounted) return;
-
     Navigator.pushNamedAndRemoveUntil(
       context,
       "/login",
@@ -115,23 +124,17 @@ class _SettingsPageState extends State<SettingsPage> {
 
                       const SizedBox(height: 30),
 
-                      TextField(
+                      TextEditor(
                         controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: "Name",
-                          border: OutlineInputBorder(),
-                        ),
+                        label: "Name",
                       ),
 
                       const SizedBox(height: 20),
 
-                      TextField(
+                      TextEditor(
                         controller: emailController,
+                        label: "Email",
                         enabled: false,
-                        decoration: const InputDecoration(
-                          labelText: "Email",
-                          border: OutlineInputBorder(),
-                        ),
                       ),
 
                       const SizedBox(height: 20),
@@ -169,13 +172,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: loading ? null : () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Profile Updated"),
-                              ),
-                            );
-                          },
+                          onPressed: loading ? null : updateUser,
                           child: Text(
                             loading ? "Loading..." : "Save Changes",
                             style: const TextStyle(
