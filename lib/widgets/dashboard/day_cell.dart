@@ -37,6 +37,11 @@ class _DayCellState extends State<DayCell> {
       print("Error loading tasks: $e");
     }
   }
+  void customRefresh(){
+    setState(() {
+      loadTasks();
+    });
+  }
 
   void showAddEodEntry(BuildContext context, DateTime date) {
     showDialog(
@@ -46,7 +51,7 @@ class _DayCellState extends State<DayCell> {
         return Center(
           child: Material(
             borderRadius: BorderRadius.circular(16),
-            child: SizedBox(width: 500, child: AddEodEntryForm(date: date)),
+            child: SizedBox(width: 500, child: AddEodEntryForm(date: date, refresh: () => customRefresh(),)),
           ),
         );
       },
@@ -148,6 +153,7 @@ class _DayCellState extends State<DayCell> {
                                                 width: 500,
                                                 child: AddEodEntryForm(
                                                   date: widget.date,
+                                                  refresh: () => customRefresh(),
                                                   existingTask: task,
                                                 ),
                                               ),

@@ -6,13 +6,16 @@ import '../widgets/eod/eod_header.dart';
 import '../models/eod_model.dart';
 import '../services/api_service.dart';
 import '../utils/storage_util.dart';
+import '../utils/toast_util.dart';
 
 class AddEodEntryForm extends StatefulWidget {
   final DateTime date;
   final Eod? existingTask;
+  final VoidCallback refresh;
   const AddEodEntryForm({
     super.key,
     required this.date,
+    required this.refresh,
     this.existingTask,
   });
   @override
@@ -22,6 +25,7 @@ class AddEodEntryForm extends StatefulWidget {
 class _AddEodEntryFormState extends State<AddEodEntryForm> {
 
   String status = "Yet to Start";
+  String currentStatus = "";
   final topicController = TextEditingController();
   final expectedController = TextEditingController();
   final actualController = TextEditingController();
@@ -41,6 +45,26 @@ class _AddEodEntryFormState extends State<AddEodEntryForm> {
       status = widget.existingTask!.status ?? "Yet to Start";
     }
   }
+  void changeStatus(String val){
+    if(currentStatus == "") {
+      currentStatus = widget.existingTask!.status ?? "Yet to Start";
+    }
+    if(currentStatus == "Yet to Start" && (val == "In Progress" || val == "Completed")){
+      setState(() {
+        status = val;
+      });
+    } else if(currentStatus == "In Progress" && val == "Completed"){
+      setState(() {
+        status = val;
+      });
+    } else if(currentStatus == val){
+      setState(() {
+        status = val;
+      });
+    } else {
+      ToastUtil.showInfo(context, "Cannot Revert the Status Once Saved");
+    }
+  }
 
   Future<void> saveEod() async {
     setState(() {
@@ -48,6 +72,34 @@ class _AddEodEntryFormState extends State<AddEodEntryForm> {
     });
     String? userId = await StorageUtil.getToken();
     if (userId == null) return;
+    if(topicController.text == ""){
+      ToastUtil.showInfo(context, "Task topic is required");
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+    if(expectedController.text == "") {
+      ToastUtil.showInfo(context, "Expected Time is required");
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+    if(status != "Completed" && actualController.text != ""){
+      ToastUtil.showInfo(context, "You cannot Enter Actual Time at the Moment.");
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+    if(status == "Completed" && actualController.text == ""){
+      ToastUtil.showInfo(context, "Actual Time is required when Task is Completed");
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
     final success = await ApiService.saveEod(
       id: widget.existingTask?.id,
       topic: topicController.text,
@@ -62,9 +114,12 @@ class _AddEodEntryFormState extends State<AddEodEntryForm> {
       loading = false;
     });
     if (success) {
+      widget.refresh();
+      ToastUtil.showSuccess(context, "Task Added Successfully");
       Navigator.pop(context, true);
     } else {
       print("Failed to save EOD");
+      ToastUtil.showError(context, "Something went Wrong.");
     }
   }
 
@@ -78,9 +133,11 @@ class _AddEodEntryFormState extends State<AddEodEntryForm> {
       loading = false;
     });
     if (success) {
+      ToastUtil.showSuccess(context, "Task Deleted");
       Navigator.pop(context, true);
     } else {
       print("Delete failed");
+      ToastUtil.showError(context, "Something went Wrong.");
     }
   }
 
@@ -120,16 +177,13 @@ class _AddEodEntryFormState extends State<AddEodEntryForm> {
             actualController: actualController,
             descController: descController,
             status: status,
-            onStatusChange: (val) {
-              setState(() {
-                status = val;
-              });
-            },
+            onStatusChange: (val) {changeStatus(val);},
           ),
 
           EodFooter(
             loading: loading,
             edit: edit,
+            onClose: () => Navigator.pop(context),
             onSave: saveEod,
           ),
         ],

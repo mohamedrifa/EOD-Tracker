@@ -4,12 +4,14 @@ class EodFooter extends StatelessWidget {
   final bool loading;
   final bool edit;
   final VoidCallback onSave;
+  final VoidCallback onClose;
 
   const EodFooter({
     super.key,
     required this.loading,
     required this.edit,
     required this.onSave,
+    required this.onClose,
   });
 
   @override
@@ -49,7 +51,7 @@ class EodFooter extends StatelessWidget {
                     borderRadius: BorderRadius.zero,
                   ),
                 ),
-                onPressed: () {},
+                onPressed: onClose,
                 child: const Text(
                   "Cancel",
                   style: TextStyle(color: Colors.grey),

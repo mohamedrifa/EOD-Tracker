@@ -31,7 +31,7 @@ class EodFormBody extends StatelessWidget {
 
           const Align(
             alignment: Alignment.centerLeft,
-            child: RequiredLabel(text: "Topic"),
+            child: RequiredLabel(text: "Topic", required: true,),
           ),
           const SizedBox(height: 8),
           Texteditor(hint: "Enter Task", controller: topicController),
@@ -44,7 +44,7 @@ class EodFormBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const RequiredLabel(text: "Expected Time"),
+                    const RequiredLabel(text: "Expected Time", required: true,),
                     const SizedBox(height: 6),
                     Texteditor(hint: "Expected Time", controller: expectedController),
                   ],
@@ -55,7 +55,7 @@ class EodFormBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const RequiredLabel(text: "Actual Time"),
+                    RequiredLabel(text: "Actual Time", required: status == "Completed",),
                     const SizedBox(height: 6),
                     Texteditor(hint: "Actual Time", controller: actualController),
                   ],

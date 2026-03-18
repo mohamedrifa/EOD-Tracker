@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class RequiredLabel extends StatelessWidget {
   final String text;
+  final bool required;
 
-  const RequiredLabel({super.key, required this.text});
+  const RequiredLabel({super.key, required this.text, this.required = false});
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +19,14 @@ class RequiredLabel extends StatelessWidget {
               color: Colors.black87,
             ),
           ),
-          const TextSpan(
-            text: "*",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color(0xffF47C20),
+          if(required)
+            const TextSpan(
+              text: "*",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xffF47C20),
+              ),
             ),
-          ),
         ],
       ),
     );
