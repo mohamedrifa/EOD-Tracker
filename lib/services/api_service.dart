@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/eod_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 class ApiService {
-  static final String baseUrl = dotenv.env['API_URL']!;
+  static final String baseUrl = "https://eod-backend-ykjw.onrender.com/api";
 
   // Login
   static Future<http.Response> login({
