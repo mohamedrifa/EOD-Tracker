@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/eod_model.dart';
 
 class ApiService {
-  static const baseUrl = String.fromEnvironment('BASE_URL');
+  static const String baseUrl = "https://eod-backend-ykjw.onrender.com/api";
 
   // Login
   static Future<http.Response> login({
