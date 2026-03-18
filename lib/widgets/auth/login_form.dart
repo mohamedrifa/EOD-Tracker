@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class LoginForm extends StatelessWidget {
+import '../text_editor.dart';
+
+class LoginForm extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final bool loading;
@@ -16,6 +18,12 @@ class LoginForm extends StatelessWidget {
     required this.onSignup,
   });
 
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  bool hidePass = true;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -41,23 +49,19 @@ class LoginForm extends StatelessWidget {
 
             const SizedBox(height: 35),
 
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-              ),
-            ),
+            TextEditor(controller: widget.emailController, label: "Email"),
 
             const SizedBox(height: 20),
 
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "Password",
-                border: OutlineInputBorder(),
-              ),
+            TextEditor(
+              controller: widget.passwordController,
+              label: "Password",
+              obscureText: hidePass,
+              isPassword: true,
+              hideText: hidePass,
+              onToggle: () {
+                setState(() => hidePass = !hidePass);
+              },
             ),
 
             const SizedBox(height: 30),
@@ -72,9 +76,9 @@ class LoginForm extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: loading ? null : onLogin,
+                onPressed: widget.loading ? null : widget.onLogin,
                 child: Text(
-                  loading ? "Logging In..." : "Login",
+                  widget.loading ? "Logging In..." : "Login",
                   style: const TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 16,
@@ -87,7 +91,7 @@ class LoginForm extends StatelessWidget {
             const SizedBox(height: 15),
 
             TextButton(
-              onPressed: onSignup,
+              onPressed: widget.onSignup,
               child: const Text(
                 "Don't have an account? Sign Up",
                 style: TextStyle(

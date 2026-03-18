@@ -151,4 +151,27 @@ class ApiService {
     );
     return res.statusCode == 200;
   }
+
+  //Update Password
+  static Future<bool> updatePassword({
+    required String id,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse("https://eod-backend-ykjw.onrender.com/api/User/$id/password"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "oldPassword": oldPassword,
+          "newPassword": newPassword,
+        }),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("Password update error: $e");
+      return false;
+    }
+  }
 }

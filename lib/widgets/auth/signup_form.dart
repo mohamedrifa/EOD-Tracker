@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../widgets/text_editor.dart';
 
-class SignupForm extends StatelessWidget {
+class SignupForm extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -18,6 +19,12 @@ class SignupForm extends StatelessWidget {
     required this.onLogin,
   });
 
+  @override
+  State<SignupForm> createState() => _SignupFormState();
+}
+
+class _SignupFormState extends State<SignupForm> {
+  bool hidePass = true;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -43,33 +50,23 @@ class SignupForm extends StatelessWidget {
 
             const SizedBox(height: 35),
 
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: "Name",
-                border: OutlineInputBorder(),
-              ),
-            ),
+            TextEditor(controller: widget.nameController, label: "Name"),
 
             const SizedBox(height: 20),
 
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-              ),
-            ),
+            TextEditor(controller: widget.emailController, label: "Email"),
 
             const SizedBox(height: 20),
 
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "Password",
-                border: OutlineInputBorder(),
-              ),
+            TextEditor(
+              controller: widget.passwordController,
+              label: "Password",
+              obscureText: hidePass,
+              isPassword: true,
+              hideText: hidePass,
+              onToggle: () {
+                setState(() => hidePass = !hidePass);
+              },
             ),
 
             const SizedBox(height: 30),
@@ -84,9 +81,9 @@ class SignupForm extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: loading ? null : onSignup,
+                onPressed: widget.loading ? null : widget.onSignup,
                 child: Text(
-                  loading ? "Registering..." : "Sign Up",
+                  widget.loading ? "Registering..." : "Sign Up",
                   style: const TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 16,
@@ -99,7 +96,7 @@ class SignupForm extends StatelessWidget {
             const SizedBox(height: 15),
 
             TextButton(
-              onPressed: onLogin,
+              onPressed: widget.onLogin,
               child: const Text(
                 "Already have an account? Login",
                 style: TextStyle(

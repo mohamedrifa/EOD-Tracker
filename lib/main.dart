@@ -5,6 +5,8 @@ import 'pages/signup_page.dart';
 import 'pages/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'utils/auth_guard.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,8 +34,10 @@ class EodApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
-        '/': (context) => Dashboard(),
-        '/settings': (context) => const SettingsPage(),
+
+        // 🔐 Protected
+        '/': (context) => const AuthGuard(child: Dashboard()),
+        '/settings': (context) => const AuthGuard(child: SettingsPage()),
       },
     );
   }
