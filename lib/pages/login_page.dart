@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:eod/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../utils/storage_util.dart';
@@ -38,12 +39,10 @@ class _LoginPageState extends State<LoginPage> {
       String userId = data["id"].toString();
 
       await StorageUtil.saveToken(userId);
-
+      ToastUtil.showSuccess(context, "Login Successfull.");
       Navigator.pushReplacementNamed(context, "/");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Login Failed")),
-      );
+      ToastUtil.showError(context, "Login Failed, Check the Credentials: ${response.statusCode}");
     }
   }
 

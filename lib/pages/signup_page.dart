@@ -1,3 +1,4 @@
+import 'package:eod/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../widgets/auth/signup_form.dart';
@@ -36,15 +37,11 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Signup Successful")),
-      );
+      ToastUtil.showSuccess(context, "Signup Successful");
 
       Navigator.pushReplacementNamed(context, "/login");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Signup Failed: ${response.statusCode}")),
-      );
+      ToastUtil.showError(context, "Signup Failed: ${response.statusCode}");
     }
   }
 
