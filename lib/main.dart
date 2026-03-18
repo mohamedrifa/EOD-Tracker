@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'pages/dashboard.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
@@ -9,7 +8,6 @@ import 'utils/auth_guard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env"); 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token = prefs.getString("token");
 
