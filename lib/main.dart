@@ -7,7 +7,6 @@ import 'pages/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'utils/auth_guard.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env"); 
